@@ -1,7 +1,12 @@
 public class Vehicle {
 
     public Vehicle(int InitialAltitude) {
-        // initialize the altitude AND previous altitude to initialAltitude
+        this.Altitude = InitialAltitude;
+        this.PrevAltitude = InitialAltitude;
+        this.Velocity = 0;
+        this.Fuel = 12000;
+        this.Burn = 0;
+        this.Flying = FLYING;
     }
 
     int Gravity = 100;
@@ -30,54 +35,53 @@ public class Vehicle {
     public Vehicle() {}
 
     public String checkFinalStatus() {
-        String s = "";
-        if (this.Altitude <= 0) {
-            if (this.Velocity > 10) {
-                s = dead;
-                Flying = DEAD;
-            }
-            if (this.Velocity < 10 && this.Velocity > 3) {
-                s = crashed;
+        if (this.Fuel <= 0) {
+            Flying = EMPTYFUEL;
+            return emptyfuel;
+        } else if (this.Altitude <= 0) {
+            if (this.Velocity >= 3) {
                 Flying = CRASHED;
-            }
-            if (this.Velocity < 3) {
-                s = success;
+                return crashed;
+            } else {
                 Flying = SUCCESS;
+                return success;
             }
-        } else {
-            if (this.Altitude > 0) {
-                s = emptyfuel;
-                Flying = EMPTYFUEL;
-            } }
-        return s;
+        }
+        Flying = FLYING;
+        return "";
     }
 
     public int computeDeltaV() {
-        // return velocity + gravity - burn amount
-        return 0;
+        return Velocity + Gravity - Burn;
     }
 
     public void adjustForBurn(int burnAmount) {
-        // set burn to burnamount requested
-        // save previousAltitude with current Altitude
-        // set new velocity to result of computeDeltaV function.
-        // subtract speed from Altitude
-        // subtract burn amount fuel used from tank
+        Burn = burnAmount;
+        PrevAltitude = Altitude;
+        Velocity = computeDeltaV();
+        Altitude -= Velocity;
+        Fuel -= burnAmount;
     }
 
     public boolean stillFlying() {
-        // return true if altitude is positive
-        return false;
+        return Flying == FLYING && Altitude > 0 && Fuel > 0;
     }
+
     public boolean outOfFuel() {
-        // return true if fuel is less than or equal to zero
-        return true;
+        if (Fuel <= 0) {
+            Flying = EMPTYFUEL;
+            return true;
+        }
+        return false;
     }
 
     public DescentEvent getStatus(int tick) {
-        // create a return a new DescentEvent object
-        // filled in with the state of the vehicle.
-        return null;
+        if (Fuel <= 0) {
+            Flying = EMPTYFUEL;
+        } else if (Altitude <= 0) {
+            Flying = (Velocity >= 3) ? CRASHED : SUCCESS;
+        }
+        return new DescentEvent(tick, Velocity, Fuel, Altitude, Flying);
     }
 
 }

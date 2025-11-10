@@ -4,8 +4,8 @@ public class Simulation {
     public Simulation(Vehicle v) {
         this.vehicle = v;
     }
-    // Mars Simulation Source Code.
-    static String version = "2.0"; /* The Version of the program */
+    
+    static String version = "2.0"; 
 
     public static int randomaltitude() {
         int max = 20000;
@@ -21,7 +21,7 @@ public class Simulation {
         s = s + "Elon Musk has sent a really expensive Starship to land on Mars.\n";
         s = s + "The on-board computer has failed! You have to land the spacecraft manually.\n";
         s = s + "Set burn rate of retro rockets to any value between 0 (free fall) and 200\n";
-        s = s + "(maximum burn) kilo per second. Set burn rate every 10 seconds.\n"; /* That's why we have to go with 10 second-steps. */
+        s = s + "(maximum burn) kilo per second. Set burn rate every 10 seconds.\n"; 
         s = s + "You must land at a speed of 2 or 1. Good Luck!\n\n";
         return s;
     }
@@ -40,7 +40,7 @@ public class Simulation {
 
 
     public void printString(String string) {
-// print long strings with new lines the them.
+
     String[] a = string.split("\r?\n");
         for (String s : a) {
             System.out.println(s);
@@ -56,26 +56,34 @@ public class Simulation {
         while (vehicle.stillFlying()) {
             status = vehicle.getStatus(burnInterval);
             System.out.print(status.toString()+"\t\t");
-            vehicle.adjustForBurn(burnSource.getNextBurn(status));
+            int burn = burnSource.getNextBurn(status);
+            vehicle.adjustForBurn(burn);
             if (vehicle.outOfFuel()) {
-                break;
+                printString(vehicle.checkFinalStatus());
+                return Vehicle.EMPTYFUEL;
             }
             burnInterval++;
             if (burnInterval % 9 == 0) {
                 printString(getHeader());
             }
         }
-        printString(vehicle.checkFinalStatus());
-        if (status != null) {
-            return status.getStatus();
+        
+        if (vehicle.outOfFuel()) {
+            return Vehicle.EMPTYFUEL;
         }
-        return -1;
+        String finalMsg = vehicle.checkFinalStatus();
+        printString(finalMsg);
+        if (vehicle.Altitude <= 0) {
+            return (vehicle.Velocity >= 3) ? Vehicle.CRASHED : Vehicle.SUCCESS;
+        }
+        return vehicle.Flying;
     }
 
+    
     public static void main(String[] args) {
-        // create a new Simulation object with a random starting altitude
-        // create a new BurnInputStream
-        // pass the new BurnInputStream to the runSimulation method
+        Simulation game = new Simulation(new Vehicle(randomaltitude()));
+        BurnStream burnSource = new BurnInputStream();
+        game.runSimulation(burnSource);
     }
 
 }

@@ -10,6 +10,15 @@ public class DescentEvent {
         this.Velocity = sp;
         this.Fuel = f;
         this.Altitude = h;
+        this.Status = st;
+        this.Status = st;
+        if (st == Vehicle.FLYING && h <= 0) {
+            if (sp >= 3) {
+                this.Status = Vehicle.CRASHED;
+            } else {
+                this.Status = Vehicle.SUCCESS;
+            }
+        }
     }
 
     public int getVelocity() {
@@ -20,6 +29,7 @@ public class DescentEvent {
         return this.Altitude;
     }
     public int getStatus() { return this.Status; }
+    
     @Override
     public String toString() {
         String s = this.Seconds +"\t\t" + this.Velocity + " \t\t" + this.Fuel + " \t\t" + this.Altitude;
